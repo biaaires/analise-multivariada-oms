@@ -1,0 +1,125 @@
+# pacotes necessários
+library(car)
+library(tidyverse)
+library(ggplot2)
+library(MVN)
+library(GGally)
+
+dados <- na.omit(read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vS7_ELG4ccM4A0IttJutSJvLicEZT0wrgjdVhtHkM3TBMrTHoRkt7k6RfdQ3KGqNfwpFuLFeVpMfkrV/pub?output=csv"))
+
+dados <- dados[,c("Life expectancy", "Adult Mortality", "Alcohol", "BMI", "GDP", "Schooling")]
+
+dados$Alcohol <- as.numeric(dados$Alcohol)
+
+# estatísticas descritivas
+
+summary(dados)
+
+dados$Log_GDP <- log(dados$GDP)
+
+summary(dados$Log_GDP)
+
+# ggpairs
+
+ggpairs(dados[,-5])
+
+# histograma variaveis 
+
+par(mfrow = c(3, 2))
+
+hist(dados$Log_GDP, 
+     xlab = "PIB", 
+     ylab = "Frequência", 
+     main = "", 
+     col = "lightblue", 
+     border = "black",
+     cex.lab = 1.5,   
+     cex.axis = 1.65)
+
+hist(dados$Schooling, 
+     xlab = "Escolaridade", 
+     ylab = "Frequência", 
+     main = "", 
+     col = "lightblue", 
+     border = "black",
+     cex.lab = 1.5,   
+     cex.axis = 1.65)
+
+hist(dados$`Life expectancy`,
+     xlab = "Expectativa de vida",
+     ylab = "Frequência", 
+     main = "", 
+     col = "lightblue", 
+     border = "black",
+     cex.lab = 1.5,   
+     cex.axis = 1.65)
+
+# Histograma para adult mortality
+hist(dados$`Adult Mortality`,
+     xlab = "Mortalidade Adulta",
+     ylab = "Frequência", 
+     main = "", 
+     col = "lightblue", 
+     border = "black",
+     cex.lab = 1.5,   
+     cex.axis = 1.65)
+
+# Histograma para alcool
+hist(dados$Alcohol,
+     xlab = "Álcool",
+     ylab = "Frequência", 
+     main = "", 
+     col = "lightblue", 
+     border = "black",
+     cex.lab = 1.5,   
+     cex.axis = 1.65)
+
+# Histograma para bmi
+hist(dados$BMI,
+     xlab = "BMI",
+     ylab = "Frequência", 
+     main = "", 
+     col = "lightblue", 
+     border = "black",
+     cex.lab = 1.5,   
+     cex.axis = 1.65) 
+
+
+# Selecionar as variáveis-resposta e preditoras
+Y <- cbind(dados$`Life expectancy`, dados$`Adult Mortality`, dados$Alcohol, dados$BMI)
+X <- dados[, c("Log_GDP", "Schooling")]
+
+# Ajustar o modelo de regressão multivariada
+modelo <- lm(Y ~ Log_GDP + Schooling, data = dados)
+summary(modelo)
+modelo$residuals
+anova(modelo, test = "Wilks")
+manova <- manova(Y ~ Log_GDP + Schooling, data = dados)
+summary(manova, test = "Pillai")
+
+
+# análise dos resíduos 
+
+# modelo expectativa de vida
+modelo1 <- lm(`Life expectancy` ~ Log_GDP + Schooling, data = dados)
+par(mfrow = c(2, 2))  
+plot(modelo1, pch = 20)
+
+# modelo mortalidade adulta
+modelo2 <- lm(`Adult Mortality` ~ Log_GDP + Schooling, data = dados)
+par(mfrow = c(2, 2))  
+plot(modelo2, pch = 20)
+
+# modelo álcool 
+modelo3 <- lm(`Alcohol` ~ Log_GDP + Schooling, data = dados)
+par(mfrow = c(2, 2))  
+plot(modelo3, pch = 20)
+
+# modelo IMC
+modelo4 <- lm(BMI ~ Log_GDP + Schooling, data = dados)
+par(mfrow = c(2, 2))  
+plot(modelo4, pch = 20)
+
+# teste de mardia
+
+mvn(data = modelo$residuals, mvnTest = "mardia")
