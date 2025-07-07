@@ -16,3 +16,6 @@ Compreender os fatores que impactam a expectativa de vida a partir de dados da O
 
 ## 📅 Contexto
 Projeto da disciplina ME731 - Métodos em Análise Multivariada (IMECC/UNICAMP).
+
+## 📄 Relatório Completo
+Relatório_ME731_Projeto_2 (1).pdf
